@@ -131,27 +131,26 @@ const getStockBadgeClass = (stockLevel) => {
 </script>
 
 <style scoped>
+/* Shared modal chrome (keep in sync across *DetailModal / ProfileDetailsModal / TasksModal).
+   z-index 2000 intentionally preserved from the original. */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 1rem;
+  padding: var(--space-4);
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  max-width: 700px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  max-width: min(700px, calc(100vw - 2 * var(--space-4))); /* never wider than the viewport minus gutters at 375px */
   width: 100%;
-  max-height: 90vh;
+  max-height: calc(100vh - 2 * var(--space-4));
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -161,59 +160,106 @@ const getStockBadgeClass = (stockLevel) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 .modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--color-text-muted);
   cursor: pointer;
-  padding: 0.5rem;
+  width: var(--control-height);
+  height: var(--control-height);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--color-surface-muted);
+  color: var(--color-text);
 }
 
+.close-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+/* Body scrolls internally so header/footer stay visible on short/narrow screens */
 .modal-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 2rem;
+  padding: var(--space-6);
+}
+
+.modal-footer {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+/* Matches the global .btn look; scoped copy because the footer button only uses .btn-secondary */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--control-height);
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  font-family: inherit;
+}
+
+.btn-secondary:hover {
+  background: var(--color-surface-muted);
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .product-header {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 2rem;
+  gap: var(--space-5);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-8);
 }
 
 .product-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 12px;
+  background: var(--color-info);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--color-surface);
   flex-shrink: 0;
 }
 
@@ -223,22 +269,22 @@ const getStockBadgeClass = (stockLevel) => {
 }
 
 .product-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 0.5rem 0;
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--space-2) 0;
 }
 
 .product-sku {
-  font-size: 0.875rem;
-  color: #64748b;
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
   font-family: 'Monaco', 'Courier New', monospace;
 }
 
 .stock-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-base);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -246,70 +292,44 @@ const getStockBadgeClass = (stockLevel) => {
 }
 
 .stock-badge.success {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--color-success-soft);
+  color: var(--color-success-text);
 }
 
 .stock-badge.warning {
-  background: #fed7aa;
-  color: #92400e;
+  background: var(--color-warning-soft);
+  color: var(--color-warning-text);
 }
 
 .stock-badge.danger {
-  background: #fecaca;
-  color: #991b1b;
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .info-label {
-  font-size: 0.813rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .info-value {
-  font-size: 0.938rem;
-  color: #0f172a;
+  font-size: var(--text-base);
+  color: var(--color-text);
   font-weight: 500;
-}
-
-.modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-}
-
-.btn-secondary {
-  padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
 }
 
 /* Modal transition animations */
@@ -331,5 +351,23 @@ const getStockBadgeClass = (stockLevel) => {
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
   transform: scale(0.95);
+}
+
+/* Narrow screens: tighter padding so content keeps room at 375px */
+@media (max-width: 480px) {
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  /* Let icon / title / badge wrap instead of squeezing the title */
+  .product-header {
+    flex-wrap: wrap;
+  }
+  .product-header > [class$="title-section"] {
+    flex-basis: calc(100% - 64px - var(--space-5));
+  }
 }
 </style>

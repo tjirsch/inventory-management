@@ -9,7 +9,7 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <!-- Revenue & Financial KPIs -->
-      <div class="stats-grid-finance">
+      <div class="stats-grid">
         <div class="stat-card revenue-card">
           <div class="stat-label">{{ t('finance.totalRevenue') }}</div>
           <div class="stat-value">{{ formatCurrency(revenueMetrics.totalRevenue) }}</div>
@@ -492,42 +492,80 @@ export default {
 </script>
 
 <style scoped>
+/*
+ * .stats-grid, .stat-card, .card, .card-header, table and .badge come from
+ * App.vue. Only finance-specific layout and chart styling lives here.
+ */
+.spending {
+  /* Chart palette: categorical series colors with no status meaning, so they
+     intentionally do not map to the status tokens. Defined once, used below. */
+  --chart-procurement: #3b82f6;
+  --chart-operational: #8b5cf6;
+  --chart-labor: #10b981;
+  --chart-overhead: #f59e0b;
+}
+
 .stat-change {
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
+  margin-top: var(--space-2);
+  font-size: var(--text-base);
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .stat-change.positive {
-  color: #059669;
+  color: var(--color-success-text);
 }
 
 .stat-change.negative {
-  color: #dc2626;
+  color: var(--color-danger-text);
 }
 
 .change-icon {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: var(--text-lg);
+}
+
+/* Accent edge on the headline cards; colors match the chart series below */
+.revenue-card {
+  border-left: 4px solid var(--color-text);
+}
+
+.cost-card {
+  border-left: 4px solid var(--color-danger);
+}
+
+.profit-card {
+  border-left: 4px solid var(--color-primary);
+}
+
+.stat-meta {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 
 .chart-card {
-  margin-bottom: 1.75rem;
+  min-width: 0;
 }
 
 .chart-legend {
   display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--text-base);
+}
+
+/* Let the card header wrap so the legend drops below the title on narrow screens */
+.chart-card :deep(.card-header) {
+  flex-wrap: wrap;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #64748b;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
 }
 
 .legend-dot {
@@ -536,38 +574,46 @@ export default {
   border-radius: 3px;
 }
 
-.legend-dot.procurement { background: #3b82f6; }
-.legend-dot.operational { background: #8b5cf6; }
-.legend-dot.labor { background: #10b981; }
-.legend-dot.overhead { background: #f59e0b; }
-.legend-dot.revenue-color { background: #0f172a; }
-.legend-dot.cost-color { background: #ef4444; }
+.legend-dot.procurement { background: var(--chart-procurement); }
+.legend-dot.operational { background: var(--chart-operational); }
+.legend-dot.labor { background: var(--chart-labor); }
+.legend-dot.overhead { background: var(--chart-overhead); }
+.legend-dot.revenue-color { background: var(--color-text); }
+.legend-dot.cost-color { background: var(--color-danger); }
 
-.stats-grid-finance {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+.chart-container {
+  padding: var(--space-4) 0 0;
+  /* Dense 12-month charts scroll inside their own box rather than the page */
+  overflow-x: auto;
 }
 
-.revenue-card {
-  border-left: 4px solid #0f172a;
+.bar-chart {
+  display: flex;
+  gap: var(--space-6);
+  height: 350px;
+  /* Floor keeps 12 bars legible; the container above scrolls below this */
+  min-width: 480px;
 }
 
-.cost-card {
-  border-left: 4px solid #ef4444;
+.y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-right: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+  border-right: 1px solid var(--color-border);
 }
 
-.profit-card {
-  border-left: 4px solid #3b82f6;
+.chart-area {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: var(--space-2);
 }
 
-.stat-meta {
-  margin-top: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
-}
-
+.bar-group,
 .bar-group-revenue {
   display: flex;
   flex-direction: column;
@@ -580,69 +626,34 @@ export default {
   width: 100%;
   max-width: 80px;
   display: flex;
-  gap: 6px;
+  gap: var(--space-1);
   justify-content: center;
   align-items: flex-end;
   height: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: var(--space-8);
 }
 
-.revenue-bar, .cost-bar {
+.revenue-bar,
+.cost-bar {
   width: 50%;
   max-width: 30px;
-  border-radius: 6px 6px 0 0;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: opacity 0.2s ease;
   cursor: pointer;
   min-height: 4px;
 }
 
 .revenue-bar {
-  background: #0f172a;
+  background: var(--color-text);
 }
 
 .cost-bar {
-  background: #ef4444;
+  background: var(--color-danger);
 }
 
-.revenue-bar:hover, .cost-bar:hover {
+.revenue-bar:hover,
+.cost-bar:hover {
   opacity: 0.8;
-  transform: scaleY(1.05);
-}
-
-.chart-container {
-  padding: 1.5rem 0;
-}
-
-.bar-chart {
-  display: flex;
-  gap: 1.5rem;
-  height: 350px;
-}
-
-.y-axis {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding-right: 1rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  border-right: 1px solid #e2e8f0;
-}
-
-.chart-area {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  gap: 0.5rem;
-}
-
-.bar-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  height: 100%;
 }
 
 .stacked-bar {
@@ -652,7 +663,7 @@ export default {
   flex-direction: column-reverse;
   align-items: stretch;
   height: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: var(--space-8);
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
@@ -663,93 +674,98 @@ export default {
 
 .bar-segment {
   width: 100%;
-  transition: all 0.3s ease;
-  cursor: pointer;
   display: block;
 }
 
 .bar-segment:first-child {
-  border-radius: 0 0 6px 6px;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
 
 .bar-segment:last-child {
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
-.bar-segment.procurement { background: #3b82f6; }
-.bar-segment.operational { background: #8b5cf6; }
-.bar-segment.labor { background: #10b981; }
-.bar-segment.overhead { background: #f59e0b; }
-
-.bar-segment:hover {
-  opacity: 0.8;
-}
+.bar-segment.procurement { background: var(--chart-procurement); }
+.bar-segment.operational { background: var(--chart-operational); }
+.bar-segment.labor { background: var(--chart-labor); }
+.bar-segment.overhead { background: var(--chart-overhead); }
 
 .bar-label {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
   font-weight: 600;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
+/* min() stops the 450px track from forcing overflow below that width */
 .two-column-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+/* Cards in a grid are spaced by the gap, not their own margin */
+.two-column-grid > .card {
+  margin-bottom: 0;
+  min-width: 0;
 }
 
 .category-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .category-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .category-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-4);
 }
 
 .category-name {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .category-amount {
-  font-weight: 700;
-  color: #2563eb;
-  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
 }
 
 .category-bar-container {
   width: 100%;
   height: 8px;
-  background: #f1f5f9;
-  border-radius: 4px;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .category-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 4px;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
   transition: width 0.6s ease;
 }
 
 .category-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.813rem;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
 }
 
 .percentage {
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .change {
@@ -757,93 +773,60 @@ export default {
 }
 
 .change.positive {
-  color: #059669;
+  color: var(--color-success-text);
 }
 
 .change.negative {
-  color: #dc2626;
+  color: var(--color-danger-text);
 }
 
+/* Transactions: scroll long lists inside the card, keep header visible */
 .transactions-card {
   display: flex;
   flex-direction: column;
 }
 
 .transactions-table-container {
-  overflow-y: auto;
+  overflow: auto;
   max-height: 400px;
-}
-
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
 }
 
 .transactions-table thead {
   position: sticky;
   top: 0;
-  background: #f8fafc;
   z-index: 1;
-}
-
-.transactions-table th {
-  text-align: left;
-  padding: 0.625rem 0.75rem;
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.transactions-table th.text-right {
-  text-align: right;
-}
-
-.transactions-table td {
-  padding: 0.75rem 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.875rem;
 }
 
 .transactions-table tbody tr {
   cursor: pointer;
-  transition: background-color 0.15s ease;
 }
 
-.transactions-table tbody tr:hover {
-  background: #f8fafc;
-}
-
+/* Scoped selector outranks the global tbody tr:hover */
 .transactions-table tbody tr.clickable-row:hover {
-  background: #eff6ff;
+  background: var(--color-primary-soft);
 }
 
+/* No mono token exists; system monospace stack for IDs */
 .transaction-id {
-  color: #64748b;
+  color: var(--color-text-muted);
   font-weight: 500;
-  font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 0.813rem;
+  font-family: ui-monospace, 'SF Mono', Monaco, 'Courier New', monospace;
+  font-size: var(--text-sm);
 }
 
 .transaction-description {
-  color: #0f172a;
+  color: var(--color-text);
   font-weight: 500;
 }
 
-.transaction-vendor {
-  color: #64748b;
-}
-
+.transaction-vendor,
 .transaction-date {
-  color: #64748b;
-  font-size: 0.813rem;
+  color: var(--color-text-muted);
 }
 
 .transaction-amount {
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .text-right {
